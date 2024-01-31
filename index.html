@@ -112,18 +112,20 @@
                         <img class="img__slider-next" src="icons/right.svg" alt="next">
                     </div>
                 </div>
-                <div class="offer__slider-wrapper">
-                    <div class="offer__slide">
-                        <img src="img/slider/pepper.jpg" alt="pepper">
-                    </div>
-                    <div class="offer__slide">
-                        <img src="img/slider/food-12.jpg" alt="food">
-                    </div>
-                    <div class="offer__slide">
-                        <img src="img/slider/olive-oil.jpg" alt="oil">
-                    </div>
-                    <div class="offer__slide">
-                        <img src="img/slider/paprika.jpg" alt="paprika">
+                <div class="offer__slider-wrapper"> <!-- overflow: hidden (что больше ширины этого блока - будет скрываться) -->
+                    <div class="offer__slider-inner"> <!-- Добавляем новую обертку для слайдера - карусель (занимать будет ширины столько, сколько слайдов в слайдере (в данном случае 4 - width: 400%)) -->
+                        <div id="first_slide" class="offer__slide">
+                            <img src="img/slider/pepper.jpg" alt="pepper">
+                        </div>
+                        <div class="offer__slide">
+                            <img src="img/slider/food-12.jpg" alt="food">
+                        </div>
+                        <div class="offer__slide">
+                            <img src="img/slider/olive-oil.jpg" alt="oil">
+                        </div>
+                        <div class="offer__slide">
+                            <img src="img/slider/paprika.jpg" alt="paprika">
+                        </div>
                     </div>
                 </div>
             </div>
