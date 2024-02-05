@@ -706,13 +706,16 @@ const getResource = async (url) => { // создаем функцию получ
 		dots.push(dot); // пушим в массив наши точки
 	};
 
+	function deleteNotDigits(str) { // добавляем функцию (удаляем не числа с помощью регулярки)
+		return +str.replace(/\D/g, '');
+	}
 
 
 	next.addEventListener('click', (e) => {
-		if (offset == +width.slice(0, width.length - 2) * (slides.length - 1)) { // Условие (если ширина (переводим в number и отрезаем пиксели) умноженная на количество слайдов - 1 (это последний слайд в массиве слайдов, именно его номер - получается, что первый слайд идет в ширину 650px и когда смещаемся на 1950px, при следующем клике сработает наше условие) - "мы долистали до конца слайдера и пора вернуть его к первому слайду"
+		if (offset == deleteNotDigits(width) * (slides.length - 1)) { // Условие (если ширина (переводим в number и отрезаем пиксели) умноженная на количество слайдов - 1 (это последний слайд в массиве слайдов, именно его номер - получается, что первый слайд идет в ширину 650px и когда смещаемся на 1950px, при следующем клике сработает наше условие) - "мы долистали до конца слайдера и пора вернуть его к первому слайду"
 			offset = 0; // тогда возвращаем карусель заново
 		} else { // Если не поледний слайд
-			offset += +width.slice(0, width.length - 2) // Добавляем offset (смещение) ширину без пикселей
+			offset += deleteNotDigits(width) // Добавляем offset (смещение) ширину без пикселей
 		}
 		slides.forEach(item => {
 			item.classList.remove('hide');
@@ -736,9 +739,9 @@ const getResource = async (url) => { // создаем функцию получ
 
 	prev.addEventListener('click', () => {
 		if (offset == 0) { // Условие (если offset будет равен 0, то при клике на кнопку предыдущего слайдера будет срабатывать условие)
-			offset = +width.slice(0, width.length - 2) * (slides.length - 1); // тогда возвращаем слайдер в последний слайд (offset 1950px - cмещение на 1950px - на последний слайд)
+			offset = deleteNotDigits(width) * (slides.length - 1); // тогда возвращаем слайдер в последний слайд (offset 1950px - cмещение на 1950px - на последний слайд)
 		} else { // Если не первый слайд
-			offset -= +width.slice(0, width.length - 2); // у offset (смещения) отнимаем ширину (- на - будет давать +)
+			offset -= deleteNotDigits(width); // у offset (смещения) отнимаем ширину (- на - будет давать +)
 		}
 		slides.forEach(item => {
 			item.classList.remove('hide');
@@ -765,7 +768,7 @@ const getResource = async (url) => { // создаем функцию получ
 			const slideTo = e.target.getAttribute('data-slide-to'); // помещаем в переменную (наше значение data-slide-to)
 	
 			slideIndex = slideTo; // меняем наш slideIndex на значение в data атрибуте (кликнули на 4 точку и в slideIndex пойдет значение 4)
-			offset = +width.slice(0, width.length - 2) * (slideTo - 1); // получение offset (ширину умножаем на slideTo - 1) - смещение на определенную ширину (нажали на 3 кнопку - ширину 650 * 2 = 1300px, на 4 кнопку - 650 * 3 = 1950px) 
+			offset = deleteNotDigits(width) * (slideTo - 1); // получение offset (ширину умножаем на slideTo - 1) - смещение на определенную ширину (нажали на 3 кнопку - ширину 650 * 2 = 1300px, на 4 кнопку - 650 * 3 = 1950px) 
 	
 			slidesField.style.transform = `translateX(-${offset}px)`; // добавляем смещение слайдера 
 	
@@ -776,6 +779,8 @@ const getResource = async (url) => { // создаем функцию получ
 			dotActive();
 		});
 	});
+
+
 
 });
 
