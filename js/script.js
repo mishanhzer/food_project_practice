@@ -141,7 +141,7 @@ window.addEventListener('DOMContentLoaded', () => {
 		}
 	}
 
-	window.addEventListener('scroll', showModalByScroll);
+	// window.addEventListener('scroll', showModalByScroll);
 
 
 	// Use class for card
@@ -781,8 +781,153 @@ const getResource = async (url) => { // создаем функцию получ
 	});
 
 
+	// Calc
+
+	const result = document.querySelector('.calculating__result span'); // Получаем наш span (суточная норма калорий)
+	let sex, height, weight, age, ratio; // обьявляем переменные (пол, рост, вес, возраст, активность)
+
+	// Функционал по использованию значений localStorage (чтобы они установились дефолтно в localStorage и в переменные sex и ratio)
+	if (localStorage.getItem('sex')) { // Если в localStorage есть значение ключа 'sex' 
+		sex = localStorage.getItem('sex'); // то в переменную sex устанавливаем значение из localStorage
+	} else { // если нет
+		sex = 'female'; // в переменную sex устанивалем знаение 'female'
+		localStorage.setItem('sex', 'female'); // и в localStorage устанвливаем ключ 'sex' со значением 'female'
+	}
+
+	if (localStorage.getItem('ratio')) { // если в localStorage есть значение 'ratio'
+		ratio = localStorage.getItem('ratio'); // в переменную ratio устанавлиаем значение из localStorage
+	} else { // если нет
+		ratio = 1.375; // в переменную ratio ставим значение 1.375
+		localStorage.setItem('ratio', 1.375); // и в localStorage устанвливаем ключ 'ratio' со значением 1.375
+	}
+
+	// console.log(localStorage.getItem('sex'));
+
+	function initLocalSettings(selector, activeClass) { // функция иницилизации (добавление класса активности в соответствие с localStorage)
+		const elements = document.querySelectorAll(selector); // получаем элементы
+
+		elements.forEach(elem => { // перебираем элементы
+			elem.classList.remove(activeClass); // удаляем класс активности
+			if (elem.getAttribute('id') === localStorage.getItem('sex')) { // Работа с верхней плашкой полов, условие (если у элемента айди равно значению ключа в localStorage)
+				elem.classList.add(activeClass); // добавляем элементу active класс
+			}
+			if (elem.getAttribute('data-ratio') === localStorage.getItem('ratio')) { // Работаем с нижней плашкой активности, условие (если у элемента атрибут равен значению ключа 'ratio' в localStorage)
+				elem.classList.add(activeClass); // добавляем элементу active класс
+			}
+		});
+	}
+	initLocalSettings('#gender div', 'calculating__choose-item_active'); // иницилизируем, все дивы внутри #gender
+	initLocalSettings('.calculating__choose_big div', 'calculating__choose-item_active'); // иницилизируем, все дивы внутри .calculating__choose_big
+
+
+	function calcTotal() { // создаем функцию, которая будет считать калории
+		if (!sex || !height || !weight || !age || !ratio) { // если нет ни пола, ни роста, ни веса, ни возраста, ни активности
+			result.textContent = '...'; // указываем в суточную норму калорий такой текст
+			return; // прерываем функцию (чтобы дальнейшие условия не сработали) - чтобы показалось вот это '...', без нее будет NaN, потому что перменные height, weight,age еще не указаны
+		} 
+
+		// Работаем по этим формулам
+		// для мужчин: BMR = 88.36 + (13.4 x вес, кг) + (4.8 х рост, см) – (5.7 х возраст, лет)
+		// для женщин: BMR = 447.6 + (9.2 x вес, кг) + (3.1 х рост, cм) – (4.3 х возраст, лет)
+
+		if (sex === 'female') { // если пол: женщина
+			result.textContent = Math.round((447.6 + (9.2 * weight) + (3.1 * height) - (4.3 * age)) * ratio); // мы в суточную норму калорий помещаем норму калорий для женщий по формуле и умножаем на активность, и обязательно округляем
+		} else { // а если не женщина 
+			result.textContent = Math.round((88.36 + (13.4 * weight) + (4.8 * height) - (5.7 * age)) * ratio); // подставляем в норму калорий мужскую формулу и умножаем на активность
+		}
+	}
+
+	calcTotal(); // вызываем функцию, чтобы наша суточная калорий поменялась на '...' - должны пользователю сказать, что он не вел все данные для того, чтобы все правильно рассчитать
+
+
+	function getStaticInfo(selector, activeClass) { // функция по получению данных со статическим контентом (пол и активность), аттрибуты: родитель и класс активности,  и функционал по установке значений в localStorage
+		const elements = document.querySelectorAll(selector); // получаем все дивы внутри родителя
+
+		// исправляем баг с делигированием (когда при клике возле кнопки рисуется пространство)
+		elements.forEach(elem => {  // перебирааем все элементы
+			elem.addEventListener('click', (e) => { // вешаем обработчик события на каждый элемент
+				if (e.target.getAttribute('data-ratio')) { // если при клике на кнопку у нас есть атрибут data-ratio (работаем с нижим отсеком активностей - calculating__choose_big)
+					ratio = +e.target.getAttribute('data-ratio'); // в переменную ratio кладем значение data-ratio которое, получаем при клике (изменяем значение ratio)
+					localStorage.setItem('ratio', +e.target.getAttribute('data-ratio')); // добавляем в localStorage ключ 'ratio' со значением дата атрибута при клике
+				} else { // если нет data атрибута (то работаем с верхним отсеком полов)
+					sex = e.target.getAttribute('id'); // в переменную sex устанавливаем значение id, которое получаем при клике
+					localStorage.setItem('sex', e.target.getAttribute('id')); // добавялем в localStorage ключ 'sex' со значением id, которое получаем при клике
+				}
+				console.log(ratio, sex);
+
+				elements.forEach(elem => { // перебираем все элементы
+					elem.classList.remove(activeClass); // удаляем классы активностей у всех элементов
+				});
+				e.target.classList.add(activeClass); // добавляем класс активности тому элементу на который нажали
+				calcTotal(); // Пересчитываем норму калорий (вызываем каждый раз, когда происходит событие в калькуляторе)
+			});
+		});
+	}
+
+	// запускаем два раза функция для верхней плашки (пол) и нижней плашки (активности)
+	getStaticInfo('#gender div', 'calculating__choose-item_active'); // родитель '#gender' - по айди обратились, и класс активности (без точки, потому что работаем через classList)
+	getStaticInfo('.calculating__choose_big div', 'calculating__choose-item_active'); // родитель '.calculating__choose_big' - по классу, и класс активности (без точки, потому что работаем через classList)
+
+
+	
+	function getDynamicInfo(selector) { // функция по получению динамический данных (работа с инпутом), аттрибут - селектор (айди инпута)
+		const input = document.querySelector(selector); // получаем инпут
+
+		input.addEventListener('input', () => { // навешиваем обработчик события на инпут
+
+
+			if (input.value.match(/\D/g)) { // если в инпуте будут не числа
+				input.style.border = '1px solid red'; // красим рамку инпута в красный цвет
+			} else { // если числа 
+				input.style.border = 'none'; // убираем у инпута рамку
+			}
+
+			// Вариант через typeof
+			// if (typeof(input.value) === 'string') {
+			// 	input.style.border = '0.5px solid red';
+			// } else {
+			// 	input.style.border = 'none';
+			// }
+
+			switch(input.getAttribute('id')) { // используем свитч (на соответствие строки) - сравниваем с айди инпута
+				case 'height': // проверяем на строку - 'height'
+					height = +input.value; // в переменную height записываем значение, которое введет пользователь
+					break; // останавливаем case если условие верно
+				case 'weight': // проверяем на строку - 'weight'
+					weight = +input.value; // в переменную weight  записываем значение, которое введет пользователь
+					break;
+				case 'age': // проверяем на строку - 'age'
+					age = +input.value; // в переменную age записываем значение, которое введет пользователь
+					break;
+			}
+			calcTotal(); // Пересчитыаем норму калорий (вызываем каждый раз, когда происходит событие в калькуляторе)
+		});
+	}
+
+	// Вызываем функцию 3 раза для каждого инпута (с 3 разными селекторами)
+	getDynamicInfo('#height');
+	getDynamicInfo('#weight');
+	getDynamicInfo('#age');
+
 
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
