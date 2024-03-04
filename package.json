@@ -11,5 +11,9 @@
   "dependencies": {
     "json-server": "^0.17.4",
     "save-dev": "^0.0.1-security"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "eslint-plugin-react": "^7.33.2"
   }
 }
